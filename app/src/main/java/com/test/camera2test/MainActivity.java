@@ -1,8 +1,11 @@
 package com.test.camera2test;
 
-import androidx.appcompat.app.AppCompatActivity;
+
+import android.app.Activity;
 
 import android.content.Context;
+
+import android.graphics.Camera;
 import android.graphics.PointF;
 import android.graphics.Rect;
 import android.hardware.camera2.CameraAccessException;
@@ -19,32 +22,44 @@ import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.Log;
 
-public class MainActivity extends AppCompatActivity {
+import java.util.ArrayList;
+import java.util.List;
+
+
+public class MainActivity extends Activity {
+//定数定義
     private static final int STATE_INIT = -1;
     private static final int STATE_WAITING_LOCK = 0;
     private static final int STATE_WAITING_PRE_CAPTURE = 1;
     private static final int STATE_WAITING_NON_PRE_CAPTURE = 2;
     private static final int AF_SAME_STATE_REPEAT_MAX = 20;
 
+//メンバ変数
     private int mState;
     private int mSameAFStateCount;
     private int mPreAFState;
 
 
+
+//アプリ起動時の処理
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
     }
 
+
+
     public void startAutoFocus(PointF[] focusPoints, Context context) {
         int maxRegionsAF = 0;
         Rect activeArraySize = null;
         CameraManager cameraManager = (CameraManager) context.getSystemService(Context.CAMERA_SERVICE);
         try {
-            CameraCharacteristics characteristics = cameraManager.getCameraCharacteristics(mOpenCameraId);
-            maxRegionsAF = characteristics.get(CameraCharacteristics.CONTROL_MAX_REGIONS_AF);
-            activeArraySize = characteristics.get(CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE);
+            for (String cameraId : cameraManager.getCameraIdList()){
+                CameraCharacteristics characteristics = cameraManager.getCameraCharacteristics(cameraId);
+                maxRegionsAF = characteristics.get(CameraCharacteristics.CONTROL_MAX_REGIONS_AF);
+                activeArraySize = characteristics.get(CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE);
+            }
         } catch (CameraAccessException e) {
             e.printStackTrace();
         }
@@ -163,6 +178,4 @@ public class MainActivity extends AppCompatActivity {
             // フォーカス完了/失敗時の処理
         }
     };
-
-
 }
